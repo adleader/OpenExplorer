@@ -91,17 +91,29 @@ public abstract class AbstractOpenExplorerAction implements IActionDelegate,
 			for (int i = 0; i < paths.length; i++) {
 				TreePath path = paths[i];
 				IResource resource = null;
+				String location = null;
+				String browser = this.systemBrowser;
 				Object segment = path.getLastSegment();
 				if ((segment instanceof IResource))
 					resource = (IResource) segment;
 				else if ((segment instanceof IJavaElement)) {
 					resource = ((IJavaElement) segment).getResource();
+					if (resource == null) {
+						location = ((IJavaElement) segment).getPath().toOSString();
+						if (location != null) {
+							if (OperatingSystem.INSTANCE.isWindows()) {
+								browser = this.systemBrowser + " /select,";
+							}
+							openInBrowser(browser, location);
+							continue;
+						}
+					}
 				}
 				if (resource == null) {
 					continue;
 				}
-				String browser = this.systemBrowser;
-				String location = resource.getLocation().toOSString();
+				//String browser = this.systemBrowser;
+				//String location = resource.getLocation().toOSString();
 				if ((resource instanceof IFile)) {
 					location = ((IFile) resource).getParent().getLocation()
 					        .toOSString();
